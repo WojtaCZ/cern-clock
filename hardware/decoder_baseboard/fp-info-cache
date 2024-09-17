@@ -1,4 +1,4 @@
-23791278684143478
+23794731904268395
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -86552,8 +86552,8 @@ RPi_PicoW_SMD_TH
 Through hole straight pin header, 2x20, 2.54mm pitch, double rows
 Through hole pin header THT 2x20 2.54mm double row
 0
-83
-43
+86
+46
 RPi_Pico
 USB_Micro-B_Amphenol_10103594-0001LF_Horizontal_modified
 Micro USB Type B 10103594-0001LF, http://cdn.amphenol-icc.com/media/wysiwyg/files/drawing/10103594.pdf
@@ -96550,3 +96550,17 @@ Varistor VF
 0
 2
 2
+decoder
+Con_01x02_2.54_SMD
+
+
+0
+2
+2
+decoder
+USB_C_Receptacle_GCT_USB4800
+USB 2.0 Type C Receptacle, GCT, 16P, top mounted, horizontal, 5A: https://gct.co/files/drawings/usb4105.pdf
+USB C Type-C Receptacle SMD USB 2.0 16P 16C USB4105-15-A USB4105-15-A-060 USB4105-15-A-120 USB4105-GF-A USB4105-GF-A-060 USB4105-GF-A-120
+0
+20
+17
