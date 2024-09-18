@@ -7789,10 +7789,6 @@
 		(uuid "b21cb49f-dadb-4ec8-a97d-dfdd18878bea")
 	)
 	(no_connect
-		(at 363.22 215.9)
-		(uuid "b400418a-fc59-403e-9e25-4494c623a31d")
-	)
-	(no_connect
 		(at 60.96 157.48)
 		(uuid "b4651567-76cd-406c-93ef-a5c4173b6d0b")
 	)
@@ -8295,6 +8291,16 @@
 			(type default)
 		)
 		(uuid "2c01abba-8ca1-4510-828d-a94954996813")
+	)
+	(wire
+		(pts
+			(xy 363.22 215.9) (xy 381 215.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c43a78d-cc00-4cfc-9d13-58d1c9abbdea")
 	)
 	(wire
 		(pts
@@ -10750,6 +10756,17 @@
 		)
 		(uuid "3009e8ec-1e7b-4e3a-b85c-481a78494a3d")
 	)
+	(label "BACKLIGHT_PWM"
+		(at 381 215.9 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "30662f0e-c0c6-4f15-9a40-6ccad6f74ce6")
+	)
 	(label "ACCEL_SCL"
 		(at 381 205.74 180)
 		(fields_autoplaced yes)
@@ -11991,7 +12008,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+		(property "Footprint" "MountingHole:MountingHole_2.5mm"
 			(at 290.83 273.05 0)
 			(effects
 				(font
@@ -12302,7 +12319,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+		(property "Footprint" "MountingHole:MountingHole_2.5mm"
 			(at 281.94 273.05 0)
 			(effects
 				(font
@@ -15204,7 +15221,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+		(property "Footprint" "MountingHole:MountingHole_2.5mm"
 			(at 290.83 279.4 0)
 			(effects
 				(font
@@ -16124,7 +16141,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+		(property "Footprint" "MountingHole:MountingHole_2.5mm"
 			(at 281.94 279.4 0)
 			(effects
 				(font
