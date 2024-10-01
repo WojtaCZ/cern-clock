@@ -1,0 +1,15 @@
+(version 1)
+
+(rule "Accel Clearance"
+	(constraint clearance (min 0.1mm))
+	(condition " A.intersectsCourtyard('U4')" ))
+
+(rule "USB Clearance"
+	(constraint clearance (min 0.1mm))
+	(constraint hole_clearance (min 0.1mm))
+    (constraint zone_connection solid)
+	(condition " A.intersectsCourtyard('J3')" ))
+
+(rule "USB GND"
+    (constraint zone_connection solid)
+	(condition " A.NetName == 'GND' && A.Type == 'Pad' && A.Pad_Type == 'SMD'" ))
