@@ -12070,7 +12070,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_USB:USB_C_Receptacle_XKB_U262-16XN-4BVC11"
+		(property "Footprint" "decoder:USB_C_Receptacle_GCT_USB4800"
 			(at 308.61 76.2 0)
 			(effects
 				(font
