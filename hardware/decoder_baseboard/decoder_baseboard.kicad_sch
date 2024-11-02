@@ -10745,6 +10745,17 @@
 		)
 		(uuid "2d8199f1-d6d6-4436-a56b-e8fce8d3621b")
 	)
+	(label "~{RESET}_3V3"
+		(at 161.29 83.82 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2ef31ee7-1909-480f-8f22-0934aafebc29")
+	)
 	(label "FIFO_EXT_A1"
 		(at 100.33 88.9 0)
 		(fields_autoplaced yes)
@@ -10811,17 +10822,6 @@
 		)
 		(uuid "3c03c388-37ab-4656-a676-67e96fe6fcf8")
 	)
-	(label "FIFO_R{slash}~{W}_3V3"
-		(at 309.88 175.26 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3e18fcac-a2ae-4866-93c3-a19aafb13f2c")
-	)
 	(label "FIFO_EXT_D5"
 		(at 102.87 172.72 0)
 		(fields_autoplaced yes)
@@ -10832,17 +10832,6 @@
 			(justify left bottom)
 		)
 		(uuid "3ec169a6-356a-43cd-a68c-b18648b7a3b5")
-	)
-	(label "FIFO_EN_3V3"
-		(at 161.29 81.28 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "421a081c-407a-422f-8bd2-9e80596433c7")
 	)
 	(label "TRCVR_~{OE}"
 		(at 309.88 187.96 0)
@@ -10865,17 +10854,6 @@
 			(justify right bottom)
 		)
 		(uuid "502ea97e-c808-496c-8633-e357cf1a7fc8")
-	)
-	(label "FIFO_R{slash}~{W}_3V3"
-		(at 161.29 83.82 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "504b0ece-40ab-4d14-bc66-5f3805e47052")
 	)
 	(label "CARD_A5"
 		(at 26.67 162.56 0)
@@ -10931,17 +10909,6 @@
 			(justify left bottom)
 		)
 		(uuid "6173675d-dd7b-4df3-bf3a-1142fb9e33b8")
-	)
-	(label "~{RESET}_3V3"
-		(at 161.29 86.36 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "6209a1c7-7e8b-4f3d-a2e4-6b030fb416c6")
 	)
 	(label "FIFO_EXT_A0"
 		(at 82.55 152.4 180)
@@ -11086,17 +11053,6 @@
 		)
 		(uuid "845cefd8-5561-4af9-92a5-3b6aeb8cd51b")
 	)
-	(label "FIFO_EN_3V3"
-		(at 309.88 170.18 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8646d580-3478-4dc7-a1f8-ed31f739353d")
-	)
 	(label "FIFO_D6_3V3"
 		(at 158.75 182.88 180)
 		(fields_autoplaced yes)
@@ -11196,6 +11152,17 @@
 		)
 		(uuid "a2db22f3-aba6-40a6-8837-dc92b8f0cb6a")
 	)
+	(label "~{RESET}_3V3"
+		(at 309.88 175.26 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a6ba074f-aeb4-4e2e-81f6-9068fd055b9c")
+	)
 	(label "USB_D+"
 		(at 351.79 78.74 180)
 		(fields_autoplaced yes)
@@ -11228,6 +11195,17 @@
 			(justify left bottom)
 		)
 		(uuid "af3d8bc3-8594-4604-86f5-53a9532e8b45")
+	)
+	(label "FIFO_R{slash}~{W}_3V3"
+		(at 161.29 81.28 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b21a39c1-ddf4-458a-9611-d98f4fe29279")
 	)
 	(label "FIFO_A1_3V3"
 		(at 161.29 88.9 180)
@@ -11284,7 +11262,7 @@
 		)
 		(uuid "c98228eb-aec0-4f07-ab82-763eaa83e089")
 	)
-	(label "~{RESET}_3V3"
+	(label "FIFO_EN_3V3"
 		(at 309.88 177.8 0)
 		(fields_autoplaced yes)
 		(effects
@@ -11394,6 +11372,17 @@
 		)
 		(uuid "d6e67748-f6f3-4b75-8fca-76a924155ae6")
 	)
+	(label "FIFO_EN_3V3"
+		(at 161.29 86.36 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "daf2aeb6-31b3-494e-955c-a81847966588")
+	)
 	(label "CARD_A1"
 		(at 68.58 64.77 180)
 		(fields_autoplaced yes)
@@ -11426,6 +11415,17 @@
 			(justify right bottom)
 		)
 		(uuid "e31aacdd-c4be-4184-bfae-07b0717292e4")
+	)
+	(label "FIFO_R{slash}~{W}_3V3"
+		(at 309.88 170.18 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e50ffa35-a845-4276-92de-dd8f008fe3d8")
 	)
 	(label "FIFO_EXT_A0"
 		(at 100.33 91.44 0)
