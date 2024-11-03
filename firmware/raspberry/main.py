@@ -30,13 +30,17 @@ ACCEL_I2C = I2C(1, freq=100000, scl=ACCEL_SCL, sda=ACCEL_SDA);
 ACCEL_I2C_ADD = 25;
 
 # Backlight & buzzer controls
-BACKLIGHT_PWM		 = machine.PWM(Pin(16));
-BACKLIGHT_PWM.freq(1000);
-BACKLIGHT_PWM.duty_u16(0);
-#BUZZER_PWM			 = Pin(22, Pin.OUT);
+BACKLIGHT_PWM		 = Pin(16, Pin.OUT, value=1)
+
+
+
+#BUZZER_PWM		 = machine.PWM(Pin(17));
+#BUZZER_PWM.freq(500);
+#BUZZER_PWM.duty_u16(50);
+#BUZZER_PWM			 = Pin(17, Pin.OUT, value=1)
 
 NTP_DELTA = 2208988800
-host = "pool.ntp.org"
+host = "pool.ntp.org"	
 
 ssid = 'Avenue de Murphy'
 password = 'Dommage cest pas possible'
@@ -214,13 +218,15 @@ DECODER_RESETn.value(1);
 connect()
 set_time()
 
+
+
 while True:
-    print(taptoggle)
     if taptoggle == 0:
         string_write(zfl(str(machine.RTC().datetime()[4]),2) + ":" + zfl(str(machine.RTC().datetime()[5]),2) + ":" + zfl(str(machine.RTC().datetime()[6]),2))
     elif taptoggle == 1:
-        string_write(zfl(str(machine.RTC().datetime()[1]),2) + "." + zfl(str(machine.RTC().datetime()[2]),2) + "." + zfl(str(machine.RTC().datetime()[0])[2:4],2))
+        string_write(zfl(str(machine.RTC().datetime()[2]),2) + "." + zfl(str(machine.RTC().datetime()[1]),2) + "." + zfl(str(machine.RTC().datetime()[0])[2:4],2))
     time.sleep_ms(50)
+
 
 
     
