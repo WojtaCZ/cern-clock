@@ -2,6 +2,10 @@ import os
 import logging
 import io
 
+import gc
+import micropython
+import requests
+
 logging.basicConfig(level=logging.DEBUG)
 
 import time
@@ -15,18 +19,19 @@ import configuration
 import ntp
 import wireless
 import tinyweb
+ #import vistars
 
 import taphandler
+import usocket
 
 
+#try:
+    #file=open("index.html","r");
+#except:
+    #raise Exception("Cannot load HTML file for the webserver.");
 
-try:
-    file=open("index.html","r");
-except:
-    raise Exception("Cannot load HTML file for the webserver.");
-
-HTML = file.read();
-file.close();
+#HTML = file.read();
+#file.close();
 
 # Backlight & buzzer controls
 BACKLIGHT_PWM		 = Pin(16, Pin.OUT, value=1)
@@ -44,20 +49,28 @@ BACKLIGHT_PWM		 = Pin(16, Pin.OUT, value=1)
 accelerometer.init();
 wireless.init();
 
-app = tinyweb.webserver()
+#response = urequests.get("https://api.ocr.space/parse/imageurl?apikey=K82625374788957&url=https://vistar-capture.s3.cern.ch/lhc1.png")
+url = micropython.const("https://api.ocr.space/parse/imageurl?apikey=K82625374788957&url=https://vistar-capture.s3.cern.ch/lhc1.png")
 
-@app.route('/')
-async def index(request, response):
+
+
+#response.close()
+#print(response)
+
+#app = tinyweb.webserver()
+
+#@app.route('/')
+#async def index(request, response):
     # Start HTTP response with content-type text/html
-    await response.start_html()
+    #await response.start_html()
     # Send actual HTML page
-    await response.send(HTML)
+   # await response.send(HTML)
     
 
 # Run the web server as the sole process
-app.run(host="0.0.0.0", port=80)
-#ntp.init();
-#ntp.syncTime();
+#app.run(host="0.0.0.0", port=80)
+ntp.init();
+ntp.syncTime();
 #try:
     
 #except:

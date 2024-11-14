@@ -34,6 +34,7 @@ def syncTime():
         NTP_QUERY = bytearray(48)
         NTP_QUERY[0] = 0x1B
         addr = socket.getaddrinfo(host, 123)[0][-1]
+        print(addr)
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         
         try:
