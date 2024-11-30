@@ -1,4 +1,5 @@
 from machine import Pin
+import time
 
 # Decoder reset pin
 DECODER_RESETn		 = Pin(2, Pin.OUT, value=0);

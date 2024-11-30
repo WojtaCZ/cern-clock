@@ -36,6 +36,20 @@ def activateAP():
         raise Exception('Failed to activate the AP')
     else: 
         logger.debug("AP mode is active");
+
+def wait_for(fun, timeout):
+    start = time.time()
+    while not fun():
+        if time.time() - start > timeout:
+            raise TimeoutError()
+        time.sleep(0.1)
+
+def disconnect():
+    global ADAPTER
+    
+    ADAPTER.active(False)
+    ADAPTER.disconnect()
+    wait_for(lambda: not ADAPTER.isconnected(), 5)
     
 def connect():
     global WIFI_SSID
@@ -44,6 +58,7 @@ def connect():
     global CONNECT_MAXWAIT_SEC
     
     ADAPTER.active(True)
+    disconnect();
     ADAPTER.connect(WIFI_SSID, WIFI_PASSWORD)
     
     maxwait = CONNECT_MAXWAIT_SEC
@@ -60,12 +75,6 @@ def connect():
         logger.debug("Connected to '" + str(WIFI_SSID) + "' with IP " + str(ADAPTER.ifconfig()[0]));
 
     
-
-def disconnect():
-    global ADAPTER
-    
-    ADAPTER.active(False)
-    ADAPTER.disconnect()
         
 def init():
     global AP_SSID

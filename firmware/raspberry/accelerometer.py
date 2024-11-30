@@ -93,16 +93,16 @@ def init():
                 tapTreshold = max(min(31, tapTreshold, 0));
             
             logger.debug("Setting tap treshold for Z axis to " + str(tapTreshold));
-            ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x31, (tapTreshold | tapEnableBits).to_bytes(1))
+            ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x32, (tapTreshold | tapEnableBits).to_bytes(1))
         except:
             logger.warning("Tap treshold for Z axis has not been found, even though tap detection is enabled. Setting to treshold 6");
-            ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x31,  (6 | tapEnableBits).to_bytes(1))     
+            ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x32,  (6 | tapEnableBits).to_bytes(1))     
     else:
         logger.debug("Tap detection on Z axis disabled");
-        
+    
     # Set shock duration
     ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x33, b'\x02');
-    # Run mode @ 400Hz, high perf|mance
+    # Run mode @ 400Hz, high performance
     ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x20, b'\x74');
     time.sleep(1)
     # Enable interrupts

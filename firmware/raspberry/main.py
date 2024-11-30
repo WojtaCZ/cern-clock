@@ -19,11 +19,11 @@ import configuration
 import ntp
 import wireless
 import tinyweb
- #import vistars
+import vistars
 
 import taphandler
 import usocket
-
+from machine import Timer
 
 #try:
     #file=open("index.html","r");
@@ -34,7 +34,6 @@ import usocket
 #file.close();
 
 # Backlight & buzzer controls
-BACKLIGHT_PWM		 = Pin(16, Pin.OUT, value=1)
 
 
 
@@ -44,18 +43,15 @@ BACKLIGHT_PWM		 = Pin(16, Pin.OUT, value=1)
 #BUZZER_PWM			 = Pin(17, Pin.OUT, value=1)
 
 
-
-
-accelerometer.init();
+decoder.deassertReset();
 wireless.init();
+ntp.init();
+ntp.sync();
+accelerometer.init();
 
-#response = urequests.get("https://api.ocr.space/parse/imageurl?apikey=K82625374788957&url=https://vistar-capture.s3.cern.ch/lhc1.png")
-url = micropython.const("https://api.ocr.space/parse/imageurl?apikey=K82625374788957&url=https://vistar-capture.s3.cern.ch/lhc1.png")
 
 
 
-#response.close()
-#print(response)
 
 #app = tinyweb.webserver()
 
@@ -67,10 +63,12 @@ url = micropython.const("https://api.ocr.space/parse/imageurl?apikey=K8262537478
    # await response.send(HTML)
     
 
+
 # Run the web server as the sole process
 #app.run(host="0.0.0.0", port=80)
-ntp.init();
-ntp.syncTime();
+
+
+
 #try:
     
 #except:
@@ -80,17 +78,17 @@ ntp.syncTime();
 
 #connect()
 #set_time()
-
-
+    
+#Timer(period=100, mode=Timer.PERIODIC, callback=taphandler.screenHandler)
 
 while True:
-    #if taptoggle == 0:
-        #string_write(zfl(str(machine.RTC().datetime()[4]),2) + ":" + zfl(str(machine.RTC().datetime()[5]),2) + ":" + zfl(str(machine.RTC().datetime()[6]),2))
-    #elif taptoggle == 1:
-        #string_write(zfl(str(machine.RTC().datetime()[2]),2) + "." + zfl(str(machine.RTC().datetime()[1]),2) + "." + zfl(str(machine.RTC().datetime()[0])[2:4],2))
+    taphandler.screenHandler(1);
     if accelerometer.tapFlag:
-        taphandler.taphandler(accelerometer.tapCounter)
+        taphandler.tapHandler(accelerometer.tapCounter)
         accelerometer.tapFlag = False;
+        
+
+
         
 
 
