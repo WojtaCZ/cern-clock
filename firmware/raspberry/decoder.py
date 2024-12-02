@@ -1,5 +1,6 @@
 from machine import Pin
 import time
+import asyncio
 
 # Decoder reset pin
 DECODER_RESETn		 = Pin(2, Pin.OUT, value=0);
@@ -15,13 +16,13 @@ FIFO_A0		 = Pin(5, Pin.OUT);
 TRCVR_OEn	 = Pin(6, Pin.OUT, value=1);
 TRCVR_DIR	 = Pin(7, Pin.OUT, value=0);
 
-def assertReset():
+async def assertReset():
     DECODER_RESETn.low();
     
-def deassertReset():
+async def deassertReset():
     DECODER_RESETn.high();
     
-def readData(address):
+async def readData(address):
     # Setup the data pins as inputs
     FIFO_D0		 = Pin(8, Pin.IN);
     FIFO_D1		 = Pin(10, Pin.IN);
@@ -56,7 +57,7 @@ def readData(address):
     # Return the data
     return byte;
 
-def writeData(address, data):
+async def writeData(address, data):
     # Write the address
     FIFO_A0.value(address & 1);
     FIFO_A1.value(address & 2);
@@ -86,15 +87,15 @@ def writeData(address, data):
     TRCVR_OEn.value(1);
 
 
-def writeString(string):
+async def writeString(string):
         # Wait for the decoder to signal that it expects to receive the first display data
         while readData(0) != 1:
-            time.sleep_ms(1)
+            await asyncio.sleep_ms(1)
         
         # Zero out the flag, now, the decoder is waiting until this byte has some value to transfer the data to the displays
         writeData(0, 0);
         
-        time.sleep_ms(5);
+        await asyncio.sleep_ms(5);
         
         # Write the display data to the buffer
         writeData(3, ord(string[0]));
@@ -104,12 +105,12 @@ def writeString(string):
         
         # Wait for the decoder to signal that it expects to receive the second display data
         while readData(0) != 2:
-            time.sleep_ms(1);
+            await asyncio.sleep_ms(1);
         
         # Zero out the flag, now, the decoder is waiting until this byte has some value to transfer the data to the displays
         writeData(0, 0);
         
-        time.sleep_ms(5);
+        await asyncio.sleep_ms(5);
         
         # Write the display data to the buffer
         writeData(3, ord(string[4]));
@@ -119,5 +120,5 @@ def writeString(string):
 
 
 # Function for zero padding
-def zfl(s, width):
+async def zfl(s, width):
     return '{:0>{w}}'.format(s, w=width)

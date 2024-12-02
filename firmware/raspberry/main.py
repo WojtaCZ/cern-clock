@@ -6,6 +6,8 @@ import gc
 import micropython
 import requests
 
+import _thread
+
 logging.basicConfig(level=logging.DEBUG)
 
 import time
@@ -20,53 +22,60 @@ import ntp
 import wireless
 import tinyweb
 import vistars
+import asyncio
 
 import taphandler
 import usocket
 from machine import Timer
 
-#try:
-    #file=open("index.html","r");
-#except:
-    #raise Exception("Cannot load HTML file for the webserver.");
+try:
+    file=open("website/index.html","r");
+except:
+    raise Exception("Cannot load HTML file for the webserver.");
 
-#HTML = file.read();
-#file.close();
+HTML = file.read();
+file.close();
 
 # Backlight & buzzer controls
 
 
 
-#BUZZER_PWM		 = machine.PWM(Pin(17));
-#BUZZER_PWM.freq(500);
-#BUZZER_PWM.duty_u16(50);
+BUZZER_PWM		 = machine.PWM(Pin(17));
+BUZZER_PWM.freq(500);
+BUZZER_PWM.duty_u16(0);
 #BUZZER_PWM			 = Pin(17, Pin.OUT, value=1)
 
 
 decoder.deassertReset();
 wireless.init();
-ntp.init();
-ntp.sync();
+#ntp.init();
+#ntp.sync();
 accelerometer.init();
 
+dd = None
 
 
+class connect():
+    def post(self, data):
+        global dd
+        """Add customer"""
+        dd = data
+        BUZZER_PWM.duty_u16(30000);
+        time.sleep_ms(300);
+        BUZZER_PWM.duty_u16(0);
+        # Return message AND set HTTP response code to "201 Created"
+        return {'message': data}, 201
 
+app = tinyweb.webserver()
+#app.add_resource(connect, '/connect')
 
-#app = tinyweb.webserver()
-
-#@app.route('/')
-#async def index(request, response):
-    # Start HTTP response with content-type text/html
-    #await response.start_html()
-    # Send actual HTML page
-   # await response.send(HTML)
+@app.route('/')
+async def index(request, response):
+    await response.send_file("website/index.html")
     
-
-
-# Run the web server as the sole process
-#app.run(host="0.0.0.0", port=80)
-
+@app.route('/style.css')
+async def style(request, response):
+    await response.send_file("website/style.css")    
 
 
 #try:
@@ -79,14 +88,30 @@ accelerometer.init();
 #connect()
 #set_time()
     
-#Timer(period=100, mode=Timer.PERIODIC, callback=taphandler.screenHandler)
+#Timer(period=100, mode=Timer.PERIODIC, callback=taphandler.screenHandler)¨
+    
 
-while True:
-    taphandler.screenHandler(1);
-    if accelerometer.tapFlag:
-        taphandler.tapHandler(accelerometer.tapCounter)
-        accelerometer.tapFlag = False;
+async def display_loop():
+    counter = 0
+    while True:
+        string = await decoder.zfl(str(counter), 8);
+        print(string)
+        await decoder.writeString(string)
         
+
+        #taphandler.screenHandler();
+        await asyncio.sleep_ms(1000);
+        counter += 1;
+        
+        #if accelerometer.tapFlag:
+            #taphandler.tapHandler(accelerometer.tapCounter)
+            #accelerometer.tapFlag = False;
+            
+app.loop.create_task(display_loop())            
+app.run(host="0.0.0.0", port=80)
+
+# Run the web server as the sole process
+
 
 
         
