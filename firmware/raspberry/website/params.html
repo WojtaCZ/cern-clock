@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<script>
+
+var paramDictionary = {};
+
+function stageParam(param, value) {
+    paramDictionary[String(param)] = String(value);
+}
+
+function getParam(param){
+    const request = new XMLHttpRequest();
+    request.open("GET", "/parameters?" + param, false);
+    request.send(null);
+
+    if (request.status === 200) {
+        var jsonResponse = JSON.parse(request.responseText);
+        return jsonResponse[param]
+    }
+}
+
+function setParam(param, value){
+    console.log(param, value)
+    const request = new XMLHttpRequest();
+    request.open("POST", "/parameters", false);
+    request.setRequestHeader("Content-Type", "application/json");
+
+    request.onreadystatechange = function() 
+        {
+            if (request.readyState === 4) 
+                {
+                    console.log(request.responseText)
+                }
+        }
+    request.send('{"' + param + '":"' + value + '"}');
+
+}
+
+function sendParams(){
+    for ([key, value] of Object.entries(paramDictionary)) {
+        setParam(key, value);
+    }
+
+    location.href = "/restart.html?t=" + String(Math.random())
+
+
+}
+
+function update(){
+    document.getElementById("tap_enable_x").checked = getParam("tap_enable_x") === "true"; 
+    document.getElementById("tap_enable_y").checked = getParam("tap_enable_y") === "true"; 
+    document.getElementById("tap_enable_z").checked = getParam("tap_enable_z") === "true"; 
+
+    document.getElementById("tap_treshold_x").value = getParam("tap_treshold_x"); 
+    document.getElementById("tap_treshold_y").value = getParam("tap_treshold_y"); 
+    document.getElementById("tap_treshold_z").value = getParam("tap_treshold_z"); 
+
+    document.getElementById("screen_sleep_timeout_enable").checked = getParam("screen_sleep_timeout_enable") === "true"; 
+    document.getElementById("screen_sleep_timeout_seconds").value = getParam("screen_sleep_timeout_seconds"); 
+    document.getElementById("screen_sleep_timerange").value = getParam("screen_sleep_timerange"); 
+
+    document.getElementById("ntp_server").value = getParam("ntp_server"); 
+    document.getElementById("vistars_url").value = getParam("vistars_url"); 
+}
+
+window.addEventListener("load", update);
+
+
+</script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>CERN CLOCK</title>
+</head>
+<body class="quicksand-light">
+    <div class="content">
+        <div class="instructions">
+            <span class="quicksand-bold">Parametry hodin</span><br>
+        </div>
+        <div class="param-section">
+            <div class="param-header"><span>Nastavení akcelerometru</span></div>
+
+            <div class="param-line"><span>Povolení detekce ťuknutí v ose X:</span><input type="checkbox" id="tap_enable_x" name="tap_enable_x" onchange="stageParam(this.name, this.checked)"/></div>
+            <div class="param-line"><span>Treshold v ose X:</span><input type="number" min="0" max="9" name="tap_treshold_x" id="tap_treshold_x" onchange="stageParam(this.name, this.value)"></div>
+
+            <div class="param-line"><span>Povolení detekce ťuknutí v ose Y:</span><input type="checkbox" id="tap_enable_y" name="tap_enable_y" onchange="stageParam(this.name, this.checked)"/></div>
+            <div class="param-line"><span>Treshold v ose Y:</span><input type="number" min="0" max="9" name="tap_treshold_y" id="tap_treshold_y" onchange="stageParam(this.name, this.value)"></div>
+
+            <div class="param-line"><span>Povolení detekce ťuknutí v ose Z:</span><input type="checkbox" id="tap_enable_z" name="tap_enable_z" onchange="stageParam(this.name, this.checked)"/></div>
+            <div class="param-line"><span>Treshold v ose Z:</span><input type="number" min="0" max="9" name="tap_treshold_z" id="tap_treshold_z" onchange="stageParam(this.name, this.value)"></div>
+
+        </div>
+
+        <div class="param-section">
+            <div class="param-header"><span>Nastavení spánku</span></div>
+
+            <div class="param-line"><span>Povolení usnutí displeje:</span><input type="checkbox" id="screen_sleep_timeout_enable" name="screen_sleep_timeout_enable" onchange="stageParam(this.name, this.checked)"/></div>
+            <div class="param-line"><span>Po jaké době je displej vypnut (s):</span><input type="number" min="1" name="screen_sleep_timeout_seconds" id="screen_sleep_timeout_seconds" onchange="stageParam(this.name, this.value)"></div>
+            <div class="param-line"><span>V jaké části dne má displej usínat:</span><input type="text" placeholder="HH:MM-HH:MM" name="screen_sleep_timerange" id="screen_sleep_timerange" onchange="stageParam(this.name, this.value)"></div>
+
+        </div>
+
+        <div class="param-section">
+            <div class="param-header"><span>Nastavení serverů</span></div>
+            <div class="param-line"><span>NTP server:</span><input type="text" name="ntp_server" id="ntp_server" onchange="stageParam(this.name, this.value)"></div>
+            <div class="param-line"><span>OCR server pro vistars:</span><input type="text" name="vistars_url" id="vistars_url" onchange="stageParam(this.name, this.value)"></div>
+        </div>
+
+        <div class="param-section applyparams" > 
+            <input type="submit" value="Aplikovat" onclick="sendParams()">
+        </div>
+        
+    </div>
+    
+</body>
+</html>
+
+

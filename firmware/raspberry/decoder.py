@@ -16,11 +16,22 @@ FIFO_A0		 = Pin(5, Pin.OUT);
 TRCVR_OEn	 = Pin(6, Pin.OUT, value=1);
 TRCVR_DIR	 = Pin(7, Pin.OUT, value=0);
 
-async def assertReset():
+def assertReset():
     DECODER_RESETn.low();
     
-async def deassertReset():
+def deassertReset():
     DECODER_RESETn.high();
+
+# Function for zero padding
+async def zfl(s, width):
+    return '{:0>{w}}'.format(s, w=width)
+
+# Function for space
+async def sfll(s, width):
+    return '{: >{w}}'.format(s, w=width)
+
+async def sflr(s, width):
+    return '{: <{w}}'.format(s, w=width)
     
 async def readData(address):
     # Setup the data pins as inputs
@@ -88,37 +99,45 @@ async def writeData(address, data):
 
 
 async def writeString(string):
+        # Fill the string to the correct size
+        string = await sfll(str(string),8);
         # Wait for the decoder to signal that it expects to receive the first display data
-        while readData(0) != 1:
+        while await readData(0) != 1:
             await asyncio.sleep_ms(1)
         
         # Zero out the flag, now, the decoder is waiting until this byte has some value to transfer the data to the displays
-        writeData(0, 0);
+        await writeData(0, 0);
         
         await asyncio.sleep_ms(5);
         
         # Write the display data to the buffer
-        writeData(3, ord(string[0]));
-        writeData(1, ord(string[1]));
-        writeData(2, ord(string[2]));
-        writeData(0, ord(string[3]));
+        await writeData(3, ord(string[0]));
+        await writeData(1, ord(string[1]));
+        await writeData(2, ord(string[2]));
+        await writeData(0, ord(string[3]));
         
         # Wait for the decoder to signal that it expects to receive the second display data
-        while readData(0) != 2:
+        while await readData(0) != 2:
+            print("loop2")
             await asyncio.sleep_ms(1);
         
         # Zero out the flag, now, the decoder is waiting until this byte has some value to transfer the data to the displays
-        writeData(0, 0);
+        await writeData(0, 0);
         
         await asyncio.sleep_ms(5);
         
         # Write the display data to the buffer
-        writeData(3, ord(string[4]));
-        writeData(1, ord(string[5]));
-        writeData(2, ord(string[6]));
-        writeData(0, ord(string[7]));
+        await writeData(3, ord(string[4]));
+        await writeData(1, ord(string[5]));
+        await writeData(2, ord(string[6]));
+        await writeData(0, ord(string[7]));
 
-
-# Function for zero padding
-async def zfl(s, width):
-    return '{:0>{w}}'.format(s, w=width)
+async def writeBanner(text, repeat = 1):
+    while repeat > 0:
+        await writeString(text[0:9]);
+        await asyncio.sleep_ms(2000);
+        for i in range(1, len(text) - 7):
+            await writeString(text[i:i+9]);
+            await asyncio.sleep_ms(300);
+        await asyncio.sleep_ms(2000);
+        repeat -= 1;

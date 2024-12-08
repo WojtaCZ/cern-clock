@@ -3,7 +3,8 @@ from machine import I2C
 from machine import Timer
 import time
 import logging
-
+import buzzer
+import sleep
 import configuration
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,38 @@ ACCEL_SCL		 = Pin(19, Pin.PULL_UP);
 ACCEL_I2C = I2C(1, freq=100000, scl=ACCEL_SCL, sda=ACCEL_SDA);
 ACCEL_I2C_ADD = 25;
 
+def recognizeTap(p):
+    global tapCounterInternal
+    global tapCounter
+    global tapTimer
+    global tapFlag
+    
+    tapTimer.deinit()
+    tapCounter = tapCounterInternal;
+    tapCounterInternal = 0;
+    tapFlag = True;
+        
+    
+def int1_handler(p):
+    global tapTimer
+    global tapCounterInternal
+    
+    buzzer.beep(600, 50);
+        
+
+    # If the sleeptimer is inactive or awake, behave normally
+    if not sleep.timerActive or (time.ticks_ms() < (sleep.timer + sleep.timeout) and sleep.timerActive):
+        if tapCounterInternal == 0:
+            tapTimer = Timer(period=600, mode=Timer.ONE_SHOT, callback=recognizeTap)
+    else:
+        sleep.timer = time.ticks_ms();
+        return;
+        
+    tapCounterInternal += 1;
+    
+    if tapCounterInternal == 2:
+        tapTimer.deinit();
+        recognizeTap(2);
 
 
 def init():
@@ -98,6 +131,7 @@ def init():
             logger.warning("Tap treshold for Z axis has not been found, even though tap detection is enabled. Setting to treshold 6");
             ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x32,  (6 | tapEnableBits).to_bytes(1))     
     else:
+        ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x32,  tapEnableBits.to_bytes(1))
         logger.debug("Tap detection on Z axis disabled");
     
     # Set shock duration
@@ -107,29 +141,12 @@ def init():
     time.sleep(1)
     # Enable interrupts
     ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x3F, b'\x20');
-
-def recognizeTap(p):
-    global tapCounterInternal
-    global tapCounter
-    global tapTimer
-    global tapFlag
     
-    tapTimer.deinit()
-    tapCounter = tapCounterInternal;
-    tapCounterInternal = 0;
-    tapFlag = True;
-        
-    
-def int1_handler(p):
-    global tapTimer
-    global tapCounterInternal
-    if tapCounterInternal == 0:
-        tapTimer = Timer(period=300, mode=Timer.ONE_SHOT, callback=recognizeTap)
-    
-    tapCounterInternal += 1;
+    # Register accel interrupt
+    ACCEL_INT1.irq(trigger=Pin.IRQ_RISING, handler=int1_handler);
 
 
-# Register accel interrupt
-ACCEL_INT1.irq(trigger=Pin.IRQ_RISING, handler=int1_handler);
+
+
 
 

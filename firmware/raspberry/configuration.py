@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 CONFIG_FILE = "configuration.conf"
 
 def findPosition(data, key):
-    totalPos = 0
+    totalPos = 0    
     while True:
         position = data.find(key + "=\"");
         # If the data is not on the first line or doesnt start wih newline, consider it as other text
@@ -23,6 +23,7 @@ def findPosition(data, key):
                 return totalPos+position;
 
 def read(key):
+    key = str(key)
     try:
         f=open(CONFIG_FILE,"r");
     except:
@@ -46,6 +47,8 @@ def read(key):
     
 
 def write(key, data):
+    data = str(data)
+    key = str(key)
     try:
         f = open(CONFIG_FILE,"r");
     except:

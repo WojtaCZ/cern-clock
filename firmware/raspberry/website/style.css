@@ -53,3 +53,43 @@
     box-sizing: border-box;
     -moz-box-sizing: border-box;
 }
+
+.link {
+  text-decoration: none;
+  color: black;
+  opacity: 0.5;
+  transition: all ease-in-out 0.2s;
+}
+
+.link:hover {
+  opacity: 1;
+  cursor:pointer;
+}
+
+.param-section {
+  margin-top: 25px;
+}
+
+.param-line{
+  height: 30px;
+  margin-bottom: 10px;
+}
+
+.param-header{
+  font-weight: 700;
+  font-size: 25px;
+  margin-bottom: 20px;
+}
+
+.param-line input{
+  float: right;
+}
+
+.applyparams {
+  display: flex;
+}
+
+.applyparams input {
+  margin: auto;
+  float: none;
+}
