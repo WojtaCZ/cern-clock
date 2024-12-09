@@ -20,13 +20,12 @@ def init():
     ntptime.timeout = 10
     ntptime.host = NTP_SERVER
     
-async def sync():
+def sync():
     t = ntptime.time()
     tm = gmtime(t)
     machine.RTC().datetime((tm[0], tm[1], tm[2], tm[6] + 1, tm[3], tm[4], tm[5], 0))
 
-
-async def localTime(secs: int | None = None) -> tuple[int, int, int, int, int, int, int, int]:
+def localTime(secs: int | None = None) -> tuple[int, int, int, int, int, int, int, int]:
     """
     Implements daylight savings
     from: the last Sunday in March (02:00 CET)

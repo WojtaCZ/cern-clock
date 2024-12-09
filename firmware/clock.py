@@ -219,6 +219,8 @@ def shouldSleep(timeTuple):
     global SLEEP_TIMERANGE_ARRAY
     year, month, mday, hour, minute, second, weekday, yearday = timeTuple
     
+    
+    
     # Never sleep if not enabled
     if not SLEEP_ENABLED:
         return False
@@ -227,7 +229,7 @@ def shouldSleep(timeTuple):
     timestampNow = time.mktime((year, month, mday, hour, minute, second, weekday, yearday))
 
     # If the timeout has not passed yet
-    if (lastActivityTimestamp + SLEEP_TIMEOUT) > timestampNow:
+    if (lastActivityTimestamp + SLEEP_TIMEOUT) < timestampNow:
         return False
     
     # If the timeout from last 

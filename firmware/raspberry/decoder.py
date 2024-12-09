@@ -1,6 +1,7 @@
 from machine import Pin
 import time
 import asyncio
+import accelerometer
 
 # Decoder reset pin
 DECODER_RESETn		 = Pin(2, Pin.OUT, value=0)
@@ -131,18 +132,34 @@ async def writeString(string):
         await writeData(2, ord(string[6]))
         await writeData(0, ord(string[7]))
 
-async def writeBanner(text, repeat = 1):
+async def writeBanner(text, repeat = 1, tapInterrupt = False):
     while repeat > 0:
         await writeString(text[0:9])
-        await asyncio.sleep_ms(2000)
+        if tapInterrupt and accelerometer.tapFlag:
+            return
+        await asyncio.sleep_ms(1000)
+        if tapInterrupt and accelerometer.tapFlag:
+            return
+        await asyncio.sleep_ms(1000)
+        if tapInterrupt and accelerometer.tapFlag:
+            return
         for i in range(1, len(text) - 7):
             await writeString(text[i:i+9])
+            if tapInterrupt and accelerometer.tapFlag:
+                return
             await asyncio.sleep_ms(300)
-        await asyncio.sleep_ms(2000)
+            if tapInterrupt and accelerometer.tapFlag:
+                return
+        await asyncio.sleep_ms(1000)
+        if tapInterrupt and accelerometer.tapFlag:
+            return
+        await asyncio.sleep_ms(1000)
+        if tapInterrupt and accelerometer.tapFlag:
+            return
         repeat -= 1
 
 def writeStringSync(string):
     asyncio.run(writeString(string))
 
-def writeBannerSync(text, repeat = 1):
-    asyncio.run(writeBanner(text, repeat))
+def writeBannerSync(text, repeat = 1, tapInterrupt = False):
+    asyncio.run(writeBanner(text, repeat, tapInterrupt))

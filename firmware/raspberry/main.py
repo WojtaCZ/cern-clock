@@ -47,9 +47,11 @@ async def homeTimerProcess():
 syncHourOld = -1
 ntpErrors = 0
 
-async def ntpSyncProcess(year, month, mday, hour, minute, second, weekday, yearday):
+async def ntpSyncProcess(timeTuple):
     global syncHourOld, ntpErrors
-
+    
+    year, month, mday, hour, minute, second, weekday, yearday = timeTuple
+    
     # If the hour has changed from the last one
     if hour != syncHourOld:
         # Try to sync the NTP
@@ -80,7 +82,7 @@ async def displayLoop():
     while True:
         
         # Get the time
-        timeNow = await ntp.localTime()
+        timeNow = ntp.localTime()
 
         # Check if the time has passed to go to the home screen
         await homeTimerProcess()
@@ -180,6 +182,19 @@ clock.init()
 # Load vistars configuration
 vistars.init()
 
+# Play the turnon animation
+clock.turnOnSequence()
+
+# Init the accelerometer
+try:       
+    accelerometer.init()
+
+# If it failed, thats fatal...
+except:
+    buzzer.beepERR()
+    while True:
+        decoder.writeBannerSync("FATALNI CHYBA! NELZE NASTAVIT AKCELEROMETR")
+
 # If the clock has not been setup yet, run through the first setup
 if clock.FIRST_SETUP:
     clock.firstSetupSequence()
@@ -209,7 +224,7 @@ try:
     decoder.writeStringSync(" HODINY ")
 
     ntp.init()
-    asyncio.run(ntp.sync())
+    ntp.sync()
 
 # If it failed, thats fatal...
 except:
@@ -217,16 +232,7 @@ except:
     while True:
         decoder.writeBannerSync("FATALNI CHYBA! NELZE SYNCHRONIZOVAT NTP")
 
-# Init the accelerometer
-try:       
-    accelerometer.init()
-
-# If it failed, thats fatal...
-except:
-    buzzer.beepERR()
-    while True:
-        decoder.writeBannerSync("FATALNI CHYBA! NELZE NASTAVIT AKCELEROMETR")
-
+accelerometer.enable()
 
 # If all went well, register the display loop as an async task to run alongside the webserver
 web.app.loop.create_task(displayLoop()) 

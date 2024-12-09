@@ -22,6 +22,8 @@ ACCEL_SCL		 = Pin(19, Pin.PULL_UP)
 ACCEL_I2C = I2C(1, freq=100000, scl=ACCEL_SCL, sda=ACCEL_SDA)
 ACCEL_I2C_ADD = 25
 
+overrideSleep = False
+
 # Handle the finished tap procedure
 def tapHandler(p):
     global tapCounterInternal, tapCounter, tapTimer, tapFlag
@@ -38,7 +40,7 @@ def tapHandler(p):
         
 # If the tap interrupt was received
 def int1_handler(p):
-    global tapTimer, tapCounterInternal
+    global tapTimer, tapCounterInternal, overrideSleep
     
     # Beep
     buzzer.beep(600, 50)
@@ -49,19 +51,20 @@ def int1_handler(p):
     # If the clock is not sleeping, behave ike a screen change
     timeNow = ntp.localTime()
 
-    if not clock.shouldSleep(timeNow):
+    if (not clock.shouldSleep(timeNow)) or overrideSleep:
         # If it is the first tap, start a timer to wait for the possible second tap
         if tapCounterInternal == 1:
             tapTimer = Timer(period=600, mode=Timer.ONE_SHOT, callback=tapHandler)
         else:
             # Kill the timer and handle the taps
             tapTimer.deinit()
-            tapHandler()
+            tapHandler(0)
 
     # But if it is sleeping, wake it up
     else:
         clock.wakeUp()
         return
+    
 # Set up the accel
 def init():
     logger.debug("Initializing the accelerometer")
@@ -148,8 +151,13 @@ def init():
     # Enable interrupts
     ACCEL_I2C.writeto_mem(ACCEL_I2C_ADD, 0x3F, b'\x20')
     
+def enable():
     # Register accel interrupt
     ACCEL_INT1.irq(trigger=Pin.IRQ_RISING, handler=int1_handler)
+
+def disable():
+    # Unregister accel interrupt
+    ACCEL_INT1.irq(trigger=Pin.IRQ_RISING, handler=None)
 
 
 
