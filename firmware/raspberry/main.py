@@ -222,7 +222,8 @@ try:
     decoder.writeStringSync(" PRESNE ")
     time.sleep_ms(1000)
     decoder.writeStringSync(" HODINY ")
-
+    time.sleep_ms(1000)
+    
     ntp.init()
     ntp.sync()
 
