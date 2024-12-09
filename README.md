@@ -1,0 +1,2 @@
+# CERN CLOCK
+This repository contains all the files for the CERN CLOCK project. The [firmware](firmware) folder contains the assembly for the 6809 processor as well as the sources for the RP Pico W. [Hardware](hardware) contains the reverse engineered schematic of the decoder board and the project for the controller board. [Mechanical](mechanical) folder contains the 3D printable parts and outlines for the plexi panels.
