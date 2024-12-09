@@ -1,6 +1,4 @@
-import socket
 from time import gmtime, mktime
-import struct
 import configuration
 import logging
 import ntptime
@@ -15,16 +13,16 @@ NTP_TIMEZONE = None
 def init():
     global NTP_SERVER
     
-    NTP_SERVER = configuration.read("ntp_server");
+    NTP_SERVER = configuration.read("ntp_server")
     if NTP_SERVER == None:
-        raise Exception("NTP server not specified!");
+        raise Exception("NTP server not specified!")
         
-    ntptime.timeout = 10;
-    ntptime.host = NTP_SERVER;
+    ntptime.timeout = 10
+    ntptime.host = NTP_SERVER
     
 async def sync():
-    t = ntptime.time();
-    tm = gmtime(t);
+    t = ntptime.time()
+    tm = gmtime(t)
     machine.RTC().datetime((tm[0], tm[1], tm[2], tm[6] + 1, tm[3], tm[4], tm[5], 0))
 
 

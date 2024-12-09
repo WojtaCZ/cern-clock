@@ -1,363 +1,237 @@
-import os
-import logging
-import io
-
-import gc
-import micropython
-import requests
-
-import _thread
-
-logging.basicConfig(level=logging.DEBUG)
-
-import time
-
 from machine import Pin
-
-#import wireless
+from machine import Timer
+import time
 import decoder
 import accelerometer
-import configuration
 import ntp
 import wireless
-import tinyweb
+import web
 import vistars
 import asyncio
 import backlight
 import buzzer
-import taphandler
-import usocket
-import urequests
-import sleep
+import clock
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
-from machine import Timer
+# Variables holding the actve screen ID and indicating screen change
+activeScreen = 0
+activeScreenOld = -1
+activeScreenChanged = True
 
-activeScreen = 0;
-activeScreenOld = -1;
-
-homeTimer = 0
+# Routines to handle returning to home screen after some time
+homeTimerLastActivityTimestamp = 0
 homeTimerActive = True
+HOME_TIMEOUT = 5000
 
-syncHourOld = -1
-ntpErrors = 0;
+def homeTimerStart():
+    global homeTimerLastActivityTimestamp, homeTimerActive, HOME_TIMEOUT
 
-def initSequence():
-    for i in range(50, 400, 1):
-        buzzer.beep(i, 8)
-    buzzer.beep(500, 400)
+    homeTimerLastActivityTimestamp = time.ticks_ms()
+    homeTimerActive = True
 
-    asyncio.run(decoder.writeString("  C     "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
+def homeTimerStop():
+    global homeTimerLastActivityTimestamp, homeTimerActive, HOME_TIMEOUT
 
-    asyncio.run(decoder.writeString("  CE    "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
+    homeTimerActive = False
 
-    asyncio.run(decoder.writeString("  CER   "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-
-    asyncio.run(decoder.writeString("  CERN  "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-
-    time.sleep_ms(200)
-    for i in range(50, 1000, 20):
-        buzzer.beep(i, 8)
-    buzzer.beep(i, 1000)
-    time.sleep_ms(200)
-
-    asyncio.run(decoder.writeString(" H      "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-
-    asyncio.run(decoder.writeString(" HO     "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-
-    asyncio.run(decoder.writeString(" HOD    "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-
-    asyncio.run(decoder.writeString(" HODI   "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-        
-    asyncio.run(decoder.writeString(" HODIN  "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-        
-    asyncio.run(decoder.writeString(" HODINY "));
-    for i in range(3000, 1000, -40):
-        buzzer.beep(i, 5)
-
-    time.sleep_ms(2000);
-
-    asyncio.run(decoder.writeString("        "));
-    buzzer.beep(800, 500)
-    buzzer.beep(1000, 500)
-    buzzer.beep(1200, 500)
-
-    asyncio.run(backlight.fadeOn(3000))
-
-
-
-
-
-app = tinyweb.webserver()
-
-async def infoResponse(data):
-    return """
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link rel="stylesheet" href="style.css">
-                <title>CERN CLOCK</title>
-            </head>
-            <body class="quicksand-light instructions" >
-                <div class="content">
-            """ + data + """
-                </div>
-                
-            </body>
-            </html>
-            """
-
-class params():
-    def get(self, data):
-        resp = {}
-        for key in data:
-            resp[key] = configuration.read(key)
-            
-        return resp
-
-    def post(self, data):
-        for key in data:
-            configuration.write(key, data[key])
-            
-        resp = {}
-        for key in data:
-            resp[key] = configuration.read(key)
-        return resp, 201
-
-app.add_resource(params, "/parameters");
-
-@app.route('/')
-async def index(request, response):
-    await response.send_file("website/index.html")
-
-@app.route('/connect.html')
-async def connect(request, response):
-    await response.send_file("website/connect.html")
-
-@app.route('/restart.html')
-async def restart(request, response):
-    await response.send_file("website/restart.html")
-    buzzer.beepOK()
-    machine.reset()
-
-@app.route('/params.html')
-async def params(request, response):
-    await response.send_file("website/params.html")
-    
-@app.route('/style.css')
-async def style(request, response):
-    await response.send_file("website/style.css")    
-
-@app.route('/setwifi', methods = ['POST'], max_body_size = 2048, save_headers = ["Content-Length","Content-Type"], allowed_access_control_headers = ["Content-Length","Content-Type"])
-async def connect(request, response):
-    data = await request.read_parse_form_data()
-    try:
-        ssid = data["ssid"]
-        password = data["pass"]
-        
-        configuration.write("wifi_ssid", ssid);
-        configuration.write("wifi_password", password);
-        
-        await response.start_html()
-        
-        await response.send(await infoResponse("""
-            <span class="quicksand-bold">Připojuji k WiFi...</span><br>
-            <span class="quicksand-medium">""" + ssid + """</span>
-        """))
-        
-        buzzer.beepOK();
-        await decoder.writeString("RESETUJI")
-        machine.reset()
-        
-    except:
-        await response.start_html()
-        await response.send(await infoResponse("""
-            <span class="quicksand-bold">Chybně zaslaná data!</span><br>
-        """))
-        buzzer.beepERR();
-    
-    
-   
-
-
-
-def homeCallback(p):
+async def homeTimerProcess():
+    global homeTimerLastActivityTimestamp, homeTimerActive, HOME_TIMEOUT
     global activeScreen
-    activeScreen = 0
-    
-async def loadScreen():
-    for i in range(8, 0, -1):
-        await decoder.writeString(await decoder.sflr("O", i));
-        await asyncio.sleep_ms(200)
-    for i in range(1, 9, 1):
-        await decoder.writeString(await decoder.sflr("O", i));
-        await asyncio.sleep_ms(200)
+
+    if time.ticks_ms() > (homeTimerLastActivityTimestamp + HOME_TIMEOUT) and homeTimerActive:
+        homeTimerStop()
+        activeScreen = 0
+
+# Routines to handle periodic NTP syncs
+syncHourOld = -1
+ntpErrors = 0
+
+async def ntpSyncProcess(year, month, mday, hour, minute, second, weekday, yearday):
+    global syncHourOld, ntpErrors
+
+    # If the hour has changed from the last one
+    if hour != syncHourOld:
+        # Try to sync the NTP
+        try:
+            ntp.sync()
+            syncHourOld = hour
+            ntpErrors = 0
+
+        # If it failed, increase error counter
+        except:
+            ntpErrors += 1
+                
+        # If we were not able to sync for the full day, restart...
+        if ntpErrors >= 24:
+            clock.restart()
+
 
 async def displayLoop():
-    global loadVistars
-    global activeScreen
-    global activeScreenOld
-    global homeTimer, homeTimerActive
+    global activeScreen, activeScreenOld, activeScreenChanged
+    global homeTimerLastActivityTimestamp, homeTimerActive, HOME_TIMEOUT
+
     global syncHourOld
     global ntpErrors
-    vistarsThread = None
     
-    
-
-    sleep.timer = time.ticks_ms();
+    # Set the last activity to be now so the clock doesnt sleep right away
+    clock.wakeUp()
     
     while True:
         
-        dateTime = await ntp.localTime();
-        hour = await decoder.zfl(str(dateTime[3]), 2);
-        minute = await decoder.zfl(str(dateTime[4]), 2);
-        second = await decoder.zfl(str(dateTime[5]), 2);
+        # Get the time
+        timeNow = await ntp.localTime()
+
+        # Check if the time has passed to go to the home screen
+        await homeTimerProcess()
+
+        # See if there is need to sync the NTP
+        await ntpSyncProcess(timeNow)
+
+        # Check if the active screen changed or there was a tap
+        if activeScreen != activeScreenOld:
+            # If so, render the new screen
+            activeScreenChanged = True
+            activeScreenOld = activeScreen
         
-        if sleep.inTimeRange(int(hour), int(minute)) and sleep.enabled:
-            sleep.timerActive = True;
-        else:
-            sleep.timerActive = False;
-        
-        if not sleep.timerActive or (time.ticks_ms() < (sleep.timer + sleep.timeout) and sleep.timerActive):
-                      
-            day = await decoder.zfl(str(dateTime[2]), 2)
-            month = await decoder.zfl(str(dateTime[1]), 2)
-            year = str(dateTime[0])[2:4]
-            
+        # If the clock shall not sleep, draw the selected screen
+        if not clock.shouldSleep(timeNow):
             # Show the time
             if activeScreen == 0:
-                if activeScreen != activeScreenOld:
-                    activeScreenOld = activeScreen;
-                    
-                await decoder.writeString(hour + ":" + minute + ":" + second);
+                hour = await decoder.zfl(str(timeNow[3]), 2)
+                minute = await decoder.zfl(str(timeNow[4]), 2)
+                second = await decoder.zfl(str(timeNow[5]), 2)
+
+                await decoder.writeString(hour + ":" + minute + ":" + second)
                 
             # Show the date
             elif activeScreen == 1:
-                if activeScreen != activeScreenOld:
-                    homeTimer = time.ticks_ms();
-                    homeTimerActive = True
-                    activeScreenOld = activeScreen;
-                    
-                await decoder.writeString(day + "." + month + "." + year);
+                if activeScreenChanged:
+                    # Start the home timer
+                    homeTimerStart()
+                
+                day = await decoder.zfl(str(timeNow[2]), 2)
+                month = await decoder.zfl(str(timeNow[1]), 2)
+                year = str(timeNow[0])[2:4]
 
-            # Summon the request 
+                await decoder.writeString(day + "." + month + "." + year)
+
+            # Request the data from the vistars OCR
             elif activeScreen == 2:
-                if activeScreen != activeScreenOld:
-                    homeTimerActive = False
-                    activeScreenOld = activeScreen;
-                    
-                await decoder.writeString("STAV LHC");
-                await vistars.getData();
-                activeScreen = 3;
+                if activeScreenChanged:
+                    # Stop the home timer
+                    homeTimerStop()
 
+                await decoder.writeString("STAV LHC")
+                await vistars.getData()
+
+                # After the request finished, show the data
+                activeScreen = 3
+            # Show the vistars data
             elif activeScreen == 3 and vistars.status != None:
-                if activeScreen != activeScreenOld:
-                    homeTimer = time.ticks_ms();
-                    homeTimerActive = True
-                    activeScreenOld = activeScreen;
-                    
-                await decoder.writeString(vistars.status);
+                if activeScreenChanged:
+                    homeTimerStart()
+                
+                # Show the retrieved data
+                await decoder.writeString(vistars.status)
+
+            activeScreenChanged = False
+
+        # If the clock should sleep
         else:
-            activeScreen = 0;
-            await decoder.writeString("        ");
+            # Go to home screen and blank the display
+            activeScreen = 0
+            await decoder.writeString("        ")
             
+        # If the accel was tapped
         if accelerometer.tapFlag:  
+            # If only once, go to next screen
             if accelerometer.tapCounter == 1:
-                activeScreen += 1;
+                activeScreen += 1
+
+            # If more than once, toggle the backlight
             else:
-                if backlight.active:
-                    await backlight.fadeOff(1000);
+                if await backlight.isLit():
+                    await backlight.fadeOff(1000)
                 else:
-                    await backlight.fadeOn(1000);
-            accelerometer.tapFlag = False;
+                    await backlight.fadeOn(1000)
+
+            # Clear the flag
+            accelerometer.tapFlag = False
                 
-        if hour != syncHourOld:
-            try:
-                ntp.sync();
-                syncHourOld = hour;
-                ntpErrors = 0;
-            except:
-                ntpErrors += 1;
-                await decoder.writeBanner("CHYBA SYNCHRONIZACE NTP")
-                
-        if ntpErrors > 10:
-            machine.restart();
-        
+        # The max number of screens is 4, loop back to 0
         if activeScreen == 4:
-            activeScreen = 0;
+            activeScreen = 0
                 
-        if time.ticks_ms() > (homeTimer + 5000) and homeTimerActive:
-            activeScreen = 0;
-            homeTimerActive = False;
-
+        # Sleep for a little
         await asyncio.sleep_ms(50)
-        
 
-
-decoder.deassertReset();
-
-vistars.init()
-sleep.init()
-
+# If the wifi doesnt connect, this loop runs forever to notify the user
 async def apLoop():
     while True:
-        await decoder.writeBanner("PRIPOJ SE K MEMU AP NA ADRESU " + wireless.ADAPTER.ifconfig()[0] + " A NASTAV MI WIFI");
-        
+        await decoder.writeBanner("PRIPOJ SE K MEMU AP NA ADRESU " + wireless.ADAPTER.ifconfig()[0] + " A NASTAV MI WIFI")
+
+# Enable the decoder
+decoder.deassertReset()
+
+# Load system related config (sleep time)
+clock.init()
+
+# Load vistars configuration
+vistars.init()
+
+# If the clock has not been setup yet, run through the first setup
+if clock.FIRST_SETUP:
+    clock.firstSetupSequence()
+
+# Try to init the wireless 
 try:
-    wireless.init();
+    wireless.init()
+
+# If it fails, thats fatal... Loop forever
 except:
-    buzzer.beepERR();
+    buzzer.beepERR()
     while True:
-        asyncio.run(decoder.writeBanner("FATALNI CHYBA! NELZE AKTIVOVAT WIFI ANI AP"));
+        decoder.writeBannerSync("FATALNI CHYBA! NELZE AKTIVOVAT WIFI ANI AP")
         
+# If the wireless was initialized but in the AP mode (not able to connect to wifi)
 if wireless.apActive:
-    app.loop.create_task(apLoop())
-    app.run(host="0.0.0.0", port=80)
+    # Run the AP loop together with the WEB interface to allow for configuration
+    web.app.loop.create_task(apLoop())
+    web.app.run(host="0.0.0.0", port=80)
 
-
-asyncio.run(decoder.writeString("ZISKAVAM"));
-time.sleep_ms(1000);
-asyncio.run(decoder.writeString(" PRESNE "));
-time.sleep_ms(1000);
-asyncio.run(decoder.writeString(" HODINY "));
-
+# Sync the NTP
 try:
-    ntp.init();
-    asyncio.run(ntp.sync());
-except:
-    buzzer.beepERR();
-    while True:
-        asyncio.run(decoder.writeBanner("FATALNI CHYBA! NELZE SYNCHRONIZOVAT NTP"));
+    decoder.writeStringSync("ZISKAVAM")
+    time.sleep_ms(1000)
+    decoder.writeStringSync(" PRESNE ")
+    time.sleep_ms(1000)
+    decoder.writeStringSync(" HODINY ")
 
+    ntp.init()
+    asyncio.run(ntp.sync())
+
+# If it failed, thats fatal...
+except:
+    buzzer.beepERR()
+    while True:
+        decoder.writeBannerSync("FATALNI CHYBA! NELZE SYNCHRONIZOVAT NTP")
+
+# Init the accelerometer
 try:       
-    accelerometer.init();
-except:
-    buzzer.beepERR();
-    while True:
-        asyncio.run(decoder.writeBanner("FATALNI CHYBA! NELZE NASTAVIT AKCELEROMETR"));
+    accelerometer.init()
 
-app.loop.create_task(displayLoop())   
-app.run(host="0.0.0.0", port=80)
-# Run the web server as the sole process
+# If it failed, thats fatal...
+except:
+    buzzer.beepERR()
+    while True:
+        decoder.writeBannerSync("FATALNI CHYBA! NELZE NASTAVIT AKCELEROMETR")
+
+
+# If all went well, register the display loop as an async task to run alongside the webserver
+web.app.loop.create_task(displayLoop()) 
+# Run the main app  
+web.app.run(host="0.0.0.0", port=80)
 
 
 
