@@ -123,7 +123,8 @@ async def displayLoop():
                 if activeScreenChanged:
                     # Stop the home timer
                     homeTimerStop()
-
+                    
+                accelerometer.disable()
                 await decoder.writeString("STAV LHC")
                 await vistars.getData()
 
@@ -136,6 +137,8 @@ async def displayLoop():
                 
                 # Show the retrieved data
                 await decoder.writeString(vistars.status)
+                
+                accelerometer.enable()
 
             activeScreenChanged = False
 
