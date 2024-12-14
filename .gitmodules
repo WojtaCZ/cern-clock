@@ -1,3 +1,0 @@
-[submodule "firmware/raspberry/tinyweb"]
-	path = firmware/raspberry/tinyweb
-	url = https://github.com/belyalov/tinyweb.git
