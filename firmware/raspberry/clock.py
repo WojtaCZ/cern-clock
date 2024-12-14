@@ -231,10 +231,16 @@ def shouldSleep(timeTuple):
     if (lastActivityTimestamp + SLEEP_TIMEOUT) > timestampNow:
         return False
     
-
+    # If the timeout from last 
+    # Create a timestamp of the todays and tomorrows midnight
+    #midnightToday = time.mktime((year, month, mday, 0, 0, 0, weekday, yearday))
+    #midnightTomorrow = midnightToday + 86400
+    
+    
     # If the first time is bigger than the second, the timerange spans two days
     if SLEEP_TIMERANGE_ARRAY[0] > SLEEP_TIMERANGE_ARRAY[1]:
         # If the timestamp is between todays and tomorrows limit
+        #if timestampNow > (midnightToday + SLEEP_TIMERANGE_ARRAY[0]) and timestampNow < (midnightTomorrow + SLEEP_TIMERANGE_ARRAY[1]):
         if secondOfTheDay > SLEEP_TIMERANGE_ARRAY[0] or secondOfTheDay < SLEEP_TIMERANGE_ARRAY[1]:
             return True
         else:
@@ -243,6 +249,7 @@ def shouldSleep(timeTuple):
     # The timerange spans just one day 
     else:
         # If the timestamp now is between the lower and upper limit
+        #if timestampNow > (midnightToday + SLEEP_TIMERANGE_ARRAY[0]) and timestampNow < (midnightToday + SLEEP_TIMERANGE_ARRAY[1]):
         if secondOfTheDay > SLEEP_TIMERANGE_ARRAY[0] and secondOfTheDay < SLEEP_TIMERANGE_ARRAY[1]:
             return True
         else:

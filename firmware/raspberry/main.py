@@ -1,7 +1,7 @@
 from machine import Pin
 from machine import Timer
-import time
 import decoder
+import time
 import accelerometer
 import ntp
 import wireless
@@ -13,6 +13,9 @@ import buzzer
 import clock
 import logging
 logging.basicConfig(level=logging.DEBUG)
+
+# Disable the decoder
+decoder.assertReset()
 
 # Variables holding the actve screen ID and indicating screen change
 activeScreen = 0
@@ -176,14 +179,15 @@ async def apLoop():
     while True:
         await decoder.writeBanner("PRIPOJ SE K MEMU AP NA ADRESU " + wireless.ADAPTER.ifconfig()[0] + " A NASTAV MI WIFI")
 
-# Enable the decoder
-decoder.deassertReset()
 
 # Load system related config (sleep time)
 clock.init()
 
 # Load vistars configuration
 vistars.init()
+
+# Enable the decoder
+decoder.deassertReset()
 
 # Play the turnon animation
 clock.turnOnSequence()
