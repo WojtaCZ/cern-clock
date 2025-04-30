@@ -137,6 +137,7 @@ async def displayLoop():
             elif activeScreen == 3 and vistars.status != None:
                 if activeScreenChanged:
                     homeTimerStart()
+                    clock.wakeUp()
                 
                 # Show the retrieved data
                 await decoder.writeString(vistars.status)
