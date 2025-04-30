@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 tapCounterInternal = 0
 tapCounter = 0
 tapFlag = False
+tapTimer = None
 
 # Accelerometer interface
 ACCEL_CSn		 = Pin(22, Pin.OUT, value=1)
@@ -29,7 +30,8 @@ def tapHandler(p):
     global tapCounterInternal, tapCounter, tapTimer, tapFlag
     
     # Kill the timer
-    tapTimer.deinit()
+    if tapTimer != None:
+        tapTimer.deinit()
     
     # Update the vars
     tapCounter = tapCounterInternal
@@ -57,7 +59,8 @@ def int1_handler(p):
             tapTimer = Timer(period=600, mode=Timer.ONE_SHOT, callback=tapHandler)
         else:
             # Kill the timer and handle the taps
-            tapTimer.deinit()
+            if tapTimer != None:
+                tapTimer.deinit()
             tapHandler(0)
 
     # But if it is sleeping, wake it up
@@ -158,6 +161,7 @@ def enable():
 def disable():
     # Unregister accel interrupt
     ACCEL_INT1.irq(trigger=Pin.IRQ_RISING, handler=None)
+
 
 
 
