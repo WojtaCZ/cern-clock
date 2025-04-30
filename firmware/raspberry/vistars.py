@@ -26,15 +26,16 @@ async def getData():
         data = response.json()['ParsedResults'][0]['ParsedText']
 
         # If there is a mention of "NO BEAM", there is no need to look for energy
-        if data.find("NO BEAM"):
+        if data.find("NO BEAM") != -1:
             status = "NO  BEAM"
         
         # Though if there is energy, return that
         else:
-            posE = data.find("E:\r\n")
-            posGeV = data.find(" GeV")
-            status = data[(posE+4):posGeV] + "GEV"
-
+            posE = data.find("\r\nE: ")
+            data = data[(posE+5):]
+            endE = data.find("\r\n")
+            data = data[:endE]
+            status = data.upper()
     except:
         # In all other cases, return error
         status = " CHYBA! "
